@@ -5,14 +5,14 @@ import net.minecraft.item.MerchantOffers;
 
 public interface IServiceSerializer {
    /**
-    * This will serialize the necessary information to get the services back after exiting the game
-    * @param offers the offers that contain the information to serialize
+    * This serializes the necessary information to get the {@link ServiceMerchantOffer} back after exiting the game
+    * @param offers the offers to serialize
     */
    void serializeServices(MerchantOffers offers);
 
    /**
-    * This will take the deserialized merchant offers and put them in the passed in merchantoffers.
-    * @param offers the offers to write the {@link ServiceMerchantOffer} to.
+    * This takes the deserialized {@link ServiceMerchantOffer}s and puts them in the passed in merchantoffers.
+    * @param offers the offers to write the services offers to.
     */
    void deserializeServices(MerchantOffers offers);
 }

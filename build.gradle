@@ -8,16 +8,23 @@ buildscript {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
+
+plugins {
+    id 'org.ajoberstar.grgit' version '4.0.2'
+    id "com.matthewprenger.cursegradle" version "1.2.0"
+}
+
 apply plugin: 'net.minecraftforge.gradle'
-// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.0'
-group = 'com.cyborgmas.villagerservices' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'villagerservices'
+group = project.proj_group
+archivesBaseName = project.baseName
+version = grgit.describe(longDescr: true).split('-').with { "${it[0]}.${it[1]}" }
+def specV = grgit.describe(longDescr: true).split('-').with { "${it[0]}" }
+System.out.println(getVersion())
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
     mappings channel: "${mcp_channel}", version: "${mcp_version}-${mcp_mc_version}"
@@ -78,7 +85,7 @@ jar {
         attributes([
             "Specification-Title": "villagerservices",
             "Specification-Vendor": "Cyborgmas",
-            "Specification-Version": "1", // We are version 1 of ourselves
+            "Specification-Version": specV,
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
             "Implementation-Vendor" :"Cyborgmas",
@@ -88,3 +95,25 @@ jar {
 }
 
 jar.finalizedBy('reobfJar')
+
+curseforge {
+    if (project.hasProperty('cf_id') && project.hasProperty('cf_release_type') && project.hasProperty('cf_changelog') &&
+            ((project.cf_release_type == 'alpha') || (project.cf_release_type == 'beta') || (project.cf_release_type == 'release'))) {
+        Properties properties = new Properties()
+        properties.load(project.rootProject.file('local.properties').newDataInputStream())
+        apiKey = properties.getProperty("curseforgeAPIKey")
+        project {
+            id = project.cf_id
+            changelog = file(project.cf_changelog)
+            changelogType = 'markdown'
+            releaseType = project.cf_release_type
+            addGameVersion(project.mc_version)
+            mainArtifact(jar) {
+
+            }
+        }
+    }
+    else {
+        System.out.println("The gradle.properties file is incorrect for cursegradle")
+    }
+}

@@ -1,8 +1,8 @@
 package com.cyborgmas.villagerservices.capability;
 
-import com.cyborgmas.villagerservices.registration.RegistryRegistration;
 import com.cyborgmas.villagerservices.VillagerServices;
 import com.cyborgmas.villagerservices.trading.ServiceMerchantOffer;
+import com.cyborgmas.villagerservices.trading.ServiceOffer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.merchant.IMerchant;
 import net.minecraft.item.MerchantOffer;
@@ -48,8 +48,7 @@ public class ServiceSerializerCap implements IServiceSerializer, ICapabilitySeri
 
    @Override
    public void deserializeServices(MerchantOffers merchantOffers) {
-      offers.forEach((id, s) ->
-              merchantOffers.set(id, new ServiceMerchantOffer(merchantOffers.get(id), RegistryRegistration.services.getValue(new ResourceLocation(s)))));
+      offers.forEach((id, res) -> merchantOffers.set(id, new ServiceMerchantOffer(merchantOffers.get(id), ServiceOffer.getFromRegistry(res))));
    }
 
    @Nonnull

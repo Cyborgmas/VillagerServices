@@ -15,8 +15,9 @@ public class ServiceMerchantOffer extends MerchantOffer {
 
    /**
     * Constructs a ServiceMerchantOffer from a {@link MerchantOffer} and a {@link ServiceOffer}. This is necessary to deserialize ServiceMerchantOffers
-    * since the {@link MerchantOffers} class does not invoke a read method to deserialize its offers but construct one directly using {@link MerchantOffer#MerchantOffer(CompoundNBT)}
-    * making all data invoked in an overridden write method useless.
+    * since the {@link MerchantOffers} class does not invoke a read method to deserialize its offers but construct one directly using
+    * {@link MerchantOffer#MerchantOffer(CompoundNBT)} making all data invoked in an overridden write method useless.
+    *
     * @param offer the offer that was previously incorrectly deserialized
     * @param service the service to add back to make a proper ServiceMerchantOffer. It is found based on its registry name.
     */

@@ -1,5 +1,6 @@
 package com.cyborgmas.villagerservices.trading;
 
+import com.cyborgmas.villagerservices.registration.RegistryRegistration;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerEntity;
@@ -39,6 +40,10 @@ public class ServiceOffer extends ForgeRegistryEntry<ServiceOffer> {
       this.background = background;
       this.tooltip = tooltip;
       this.side = side;
+   }
+
+   public static ServiceOffer getFromRegistry(String res) {
+      return RegistryRegistration.services.getValue(new ResourceLocation(res));
    }
 
    public void executeService(PlayerEntity player){

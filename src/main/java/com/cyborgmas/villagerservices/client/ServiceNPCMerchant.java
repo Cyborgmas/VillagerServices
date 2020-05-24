@@ -8,8 +8,6 @@ import net.minecraft.item.MerchantOffers;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.world.World;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 
@@ -35,7 +33,6 @@ public class ServiceNPCMerchant implements IMerchant {
       return this.offers;
    }
 
-   @OnlyIn(Dist.CLIENT)
    public void setClientSideOffers(@Nullable MerchantOffers offers) {
       this.offers = offers;
    }

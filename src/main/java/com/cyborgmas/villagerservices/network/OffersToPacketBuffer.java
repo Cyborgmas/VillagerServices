@@ -1,13 +1,11 @@
 package com.cyborgmas.villagerservices.network;
 
-import com.cyborgmas.villagerservices.registration.RegistryRegistration;
 import com.cyborgmas.villagerservices.trading.ServiceMerchantOffer;
 import com.cyborgmas.villagerservices.trading.ServiceOffer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.MerchantOffer;
 import net.minecraft.item.MerchantOffers;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
 
 public class OffersToPacketBuffer {
    public static MerchantOffers read(PacketBuffer buffer) {
@@ -22,24 +20,24 @@ public class OffersToPacketBuffer {
             price2 = buffer.readItemStack();
          }
 
-         boolean flag = buffer.readBoolean();
-         int k = buffer.readInt();
-         int l = buffer.readInt();
-         int i1 = buffer.readInt();
-         int j1 = buffer.readInt();
-         float f = buffer.readFloat();
-         int k1 = buffer.readInt();
+         boolean setMaxUses = buffer.readBoolean();
+         int uses = buffer.readInt();
+         int maxUses = buffer.readInt();
+         int givenXp = buffer.readInt();
+         int specialPrice = buffer.readInt();
+         float priceMulti = buffer.readFloat();
+         int demand = buffer.readInt();
          MerchantOffer offer;
-         if(buffer.readBoolean()) { //Service MerchantOffer
-            ServiceOffer service = RegistryRegistration.services.getValue(new ResourceLocation(buffer.readString()));
-            offer = new ServiceMerchantOffer(price1, price2, service, k, l, i1, f, k1);
+         if(buffer.readBoolean()) { //Is this a Service MerchantOffer
+            ServiceOffer service = ServiceOffer.getFromRegistry(buffer.readString());
+            offer = new ServiceMerchantOffer(price1, price2, service, uses, maxUses, givenXp, priceMulti, demand);
          } else {
-            offer = new MerchantOffer(price1, price2, result, k, l, i1, f, k1);
+            offer = new MerchantOffer(price1, price2, result, uses, maxUses, givenXp, priceMulti, demand);
          }
-         if (flag) {
-            offer.getMaxUses();
+         if (setMaxUses) {
+            offer.getMaxUses(); //this method is incorrectly named, it sets uses = maxUses;
          }
-         offer.setSpecialPrice(j1);
+         offer.setSpecialPrice(specialPrice);
          merchantoffers.add(offer);
       }
       return merchantoffers;

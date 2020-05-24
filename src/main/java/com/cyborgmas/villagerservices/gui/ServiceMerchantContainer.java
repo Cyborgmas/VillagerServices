@@ -1,8 +1,8 @@
 package com.cyborgmas.villagerservices.gui;
 
+import com.cyborgmas.villagerservices.VillagerServices;
 import com.cyborgmas.villagerservices.client.ServiceNPCMerchant;
 import com.cyborgmas.villagerservices.registration.DeferredRegistration;
-import com.cyborgmas.villagerservices.VillagerServices;
 import com.cyborgmas.villagerservices.trading.ServiceMerchantOffer;
 import net.minecraft.entity.merchant.IMerchant;
 import net.minecraft.entity.player.PlayerEntity;

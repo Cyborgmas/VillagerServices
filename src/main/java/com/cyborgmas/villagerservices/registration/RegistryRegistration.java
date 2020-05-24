@@ -18,6 +18,7 @@ public class RegistryRegistration {
       services = new RegistryBuilder<ServiceOffer>()
               .setType(ServiceOffer.class)
               .setName(VillagerServices.getId("service_offer_registry"))
+              .setDefaultKey(VillagerServices.getId("null_service"))
               .create();
       DeferredRegistration.registerAll(FMLJavaModLoadingContext.get().getModEventBus());
    }
