@@ -27,16 +27,12 @@ public class ServiceMerchantContainer extends Container {
 
    private final HideableServiceMerchantResultSlot hideableResultSlot;
 
-   public ServiceMerchantContainer(int id, PlayerInventory playerInventory, PacketBuffer buffer) { //TODO find a use for buffer
-      this(id, playerInventory, new ServiceNPCMerchant(playerInventory.player), buffer.readBoolean());
-   }
-
-   public ServiceMerchantContainer(int id, PlayerInventory inv, IMerchant merchant){
-      this(id, inv, merchant, merchant.getOffers().get(0) instanceof ServiceMerchantOffer);
+   public ServiceMerchantContainer(int id, PlayerInventory playerInventory, PacketBuffer buffer) {
+      this(id, playerInventory, new ServiceNPCMerchant(playerInventory.player));
    }
 
    //On the server, the IMerchant is an entity (Villager) but on the client it is the NPCMerchant impl of IMerchant
-   public ServiceMerchantContainer(int id, PlayerInventory playerInventory, IMerchant merchant, boolean openOnService) {
+   public ServiceMerchantContainer(int id, PlayerInventory playerInventory, IMerchant merchant) {
       super(DeferredRegistration.SERVICE_MERCHANT_CONTAINER.get(), id);
       this.merchant = merchant;
       this.merchantInventory = new ServiceMerchantInventory(merchant, this::changeDisplayingTrade);

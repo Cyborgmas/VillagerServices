@@ -350,7 +350,7 @@ public class ServiceMerchantScreen extends ContainerScreen<ServiceMerchantContai
             } else if (x > this.x + 65) {
                int id = this.GUITradeOffset + ServiceMerchantScreen.this.scrollOffset;
                MerchantOffer offer =  ServiceMerchantScreen.this.container.getOffers().get(id);
-               if(offer instanceof ServiceMerchantOffer) { //TODO render tooltip also in the result slot location
+               if(offer instanceof ServiceMerchantOffer) {
                   ServiceMerchantScreen.this.renderTooltip(((ServiceMerchantOffer) offer).getTooltip().stream().map(I18n::format).collect(Collectors.toList()), x, y);
                } else {
                   ItemStack offerStack = offer.getSellingStack();

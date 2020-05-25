@@ -22,7 +22,7 @@ import net.minecraftforge.fml.network.NetworkHooks;
 @Mod.EventBusSubscriber(modid = VillagerServices.MOD_ID)
 public class VillagerScreenReplacer {
    @SubscribeEvent
-   public static void onVillagerInteraction(PlayerInteractEvent.EntityInteract event){
+   public static void onVillagerInteraction(PlayerInteractEvent.EntityInteract event) {
       Entity entity = event.getTarget();
       PlayerEntity player = event.getPlayer();
       if(!(entity instanceof IMerchant) || !(player instanceof ServerPlayerEntity)) return;
@@ -30,8 +30,7 @@ public class VillagerScreenReplacer {
       IMerchant merchant = (IMerchant) entity;
       MerchantOffers offers = merchant.getOffers();
       if(offers.isEmpty()) return;
-      NetworkHooks.openGui(sp, new SimpleNamedContainerProvider((id, inv, customer)-> new ServiceMerchantContainer(id, inv, merchant), entity.getDisplayName()),
-              buffer -> buffer.writeBoolean(offers.get(0) instanceof ServiceMerchantOffer));
+      NetworkHooks.openGui(sp, new SimpleNamedContainerProvider((id, inv, customer)-> new ServiceMerchantContainer(id, inv, merchant), entity.getDisplayName()), buf -> {});
       if(merchant instanceof VillagerEntity) {
          ((VillagerEntity) merchant).recalculateSpecialPricesFor(sp);
       }
@@ -42,7 +41,7 @@ public class VillagerScreenReplacer {
       event.setCancellationResult(ActionResultType.SUCCESS);
    }
 
-   private static int getLevelFromVillager(Entity entity){
+   private static int getLevelFromVillager(Entity entity){ //TODO make pr to forge so that getLevel is an IMerchant impl instead of being directly on the villager.
       if(entity instanceof VillagerEntity){
          return ((VillagerEntity)entity).getVillagerData().getLevel();
       }
