@@ -4,7 +4,6 @@ import com.cyborgmas.villagerservices.VillagerServices;
 import com.cyborgmas.villagerservices.gui.ServiceMerchantContainer;
 import com.cyborgmas.villagerservices.network.Network;
 import com.cyborgmas.villagerservices.network.OpenServiceMerchantContainerMessage;
-import com.cyborgmas.villagerservices.trading.ServiceMerchantOffer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.merchant.IMerchant;
 import net.minecraft.entity.merchant.villager.VillagerEntity;

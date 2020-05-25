@@ -7,6 +7,10 @@ import net.minecraft.item.MerchantOffer;
 import net.minecraft.item.MerchantOffers;
 import net.minecraft.network.PacketBuffer;
 
+/**
+ * Using the {@link MerchantOffers} version would result in losing the data for services.
+ * This is an almost identical copy, with 2 added read/writes for {@link ServiceOffer}
+ */
 public class OffersToPacketBuffer {
    public static MerchantOffers read(PacketBuffer buffer) {
       MerchantOffers merchantoffers = new MerchantOffers();
@@ -29,8 +33,7 @@ public class OffersToPacketBuffer {
          int demand = buffer.readInt();
          MerchantOffer offer;
          if(buffer.readBoolean()) { //Is this a Service MerchantOffer
-            ServiceOffer service = ServiceOffer.getFromRegistry(buffer.readString());
-            offer = new ServiceMerchantOffer(price1, price2, service, uses, maxUses, givenXp, priceMulti, demand);
+            offer = new ServiceMerchantOffer(price1, price2, ServiceOffer.getFromRegistry(buffer.readString()), uses, maxUses, givenXp, priceMulti, demand);
          } else {
             offer = new MerchantOffer(price1, price2, result, uses, maxUses, givenXp, priceMulti, demand);
          }

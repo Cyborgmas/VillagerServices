@@ -1,5 +1,6 @@
 package com.cyborgmas.villagerservices.gui;
 
+import com.cyborgmas.villagerservices.events.VillagerServiceDrawEvent;
 import com.cyborgmas.villagerservices.network.ExecuteServiceMessage;
 import com.cyborgmas.villagerservices.network.Network;
 import com.cyborgmas.villagerservices.network.SelectServiceTradeMessage;
@@ -16,14 +17,15 @@ import net.minecraft.item.MerchantOffers;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraftforge.common.MinecraftForge;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class ServiceMerchantScreen extends ContainerScreen<ServiceMerchantContainer> {
    private static final ResourceLocation MERCHANT_GUI_TEXTURE = new ResourceLocation("textures/gui/container/villager2.png");
-   //VillagerServices.getId("textures/gui/container/servicevillager.png");
    private int selectedMerchantTrade;
-   private final TradeButton[] buttons = new TradeButton[7];
+   private final TradeButton[] tradeButtons = new TradeButton[7];
    private Button serviceButton;
    private int scrollOffset;
    private boolean mouseClicked;
@@ -41,7 +43,7 @@ public class ServiceMerchantScreen extends ContainerScreen<ServiceMerchantContai
       int yOffset = yPos + 16 + 2;
 
       for(int i = 0; i < 7; ++i) {
-         this.buttons[i] = this.addButton(new TradeButton(xPos + 5, yOffset, i, (button) -> {
+         this.tradeButtons[i] = this.addButton(new TradeButton(xPos + 5, yOffset, i, (button) -> {
             if (button instanceof TradeButton) {
                this.selectedMerchantTrade = ((TradeButton)button).getGUITradeOffset() + this.scrollOffset;
                this.selectTrade();
@@ -49,7 +51,6 @@ public class ServiceMerchantScreen extends ContainerScreen<ServiceMerchantContai
          }));
          yOffset += 20;
       }
-
       serviceButton = this.addButton(new Button(xPos + 204, yPos + 61,50, 20,"Execute", (button) -> this.executeService()));
    }
 
@@ -61,7 +62,6 @@ public class ServiceMerchantScreen extends ContainerScreen<ServiceMerchantContai
    private void selectTrade() {
       this.container.setCurrentRecipeIndex(this.selectedMerchantTrade);
       this.container.putAllValidPaymentsInTradeSlots(this.selectedMerchantTrade);
-      //this.container.changeTradeType(this.selectedMerchantTrade);
       SelectServiceTradeMessage msg = new SelectServiceTradeMessage(this.selectedMerchantTrade);
       Network.channel.sendToServer(msg);
    }
@@ -150,7 +150,7 @@ public class ServiceMerchantScreen extends ContainerScreen<ServiceMerchantContai
 
                this.renderArrow(offer, xInit, itemYOffset);
                if(offer instanceof ServiceMerchantOffer){
-                  this.renderFrontServiceTextures(xInit + 5 + 68, itemYOffset, ((ServiceMerchantOffer) offer).getTexture());
+                  this.drawButtonServiceTextures(xInit + 5 + 68, itemYOffset, ((ServiceMerchantOffer) offer).getTexture());
                } else {
                   this.itemRenderer.renderItemAndEffectIntoGUI(result, xInit + 5 + 68, itemYOffset);
                   this.itemRenderer.renderItemOverlays(this.font, result, xInit + 5 + 68, itemYOffset);
@@ -165,7 +165,7 @@ public class ServiceMerchantScreen extends ContainerScreen<ServiceMerchantContai
             this.renderXpBar(xInit, yInit);
          }
 
-         for(TradeButton button : this.buttons) {
+         for(TradeButton button : this.tradeButtons) {
             if (button.isHovered()) {
                button.renderToolTip(mouseX, mouseY);
             }
@@ -180,9 +180,12 @@ public class ServiceMerchantScreen extends ContainerScreen<ServiceMerchantContai
          boolean isService = currentTrade instanceof ServiceMerchantOffer;
          if(isService) {
             boolean canExec = this.container.canExecuteService();
-            serviceButton.visible = canExec;
+            serviceButton.visible = canExec && !MinecraftForge.EVENT_BUS.post(new VillagerServiceDrawEvent.DrawButton(this, serviceButton));
             if(canExec && this.isPointInRegion(215, 33, 26, 26, mouseX, mouseY)) {
-               this.renderTooltip(((ServiceMerchantOffer)currentTrade).getTooltip().stream().map(I18n::format).collect(Collectors.toList()), mouseX, mouseY);
+               List<String> translatedTooltip = ((ServiceMerchantOffer)currentTrade).getTooltip().stream().map(I18n::format).collect(Collectors.toList());
+               if(!MinecraftForge.EVENT_BUS.post(new VillagerServiceDrawEvent.ToolTipEvent(this,xInit+215,yInit+33, mouseX, mouseY, translatedTooltip,true))){
+                  this.renderTooltip(translatedTooltip, mouseX, mouseY);
+               }
             }
          } else {
             serviceButton.visible = false;
@@ -197,22 +200,33 @@ public class ServiceMerchantScreen extends ContainerScreen<ServiceMerchantContai
       if(offer instanceof ServiceMerchantOffer) {
          ResourceLocation background = ((ServiceMerchantOffer) offer).getBackground();
          ResourceLocation texture = ((ServiceMerchantOffer) offer).getTexture();
-         if(background != null) {
-            this.minecraft.getTextureManager().bindTexture(background);
-            blit(x+215,y+33,this.getBlitOffset()+50,0,0,26,26, 26,26);
+         int bgXOffset = x+215;
+         int bgYOffset = y+33;
+         int texXOffset = bgXOffset+5;
+         int texYOffset = bgYOffset+5;
+
+         if(!MinecraftForge.EVENT_BUS.post(new VillagerServiceDrawEvent.DrawBackground(this, background, bgXOffset,bgYOffset))) {
+            if(background != null) {
+               this.minecraft.getTextureManager().bindTexture(background);
+               blit(bgXOffset,bgYOffset,this.getBlitOffset()+50,0,0,26,26, 26,26);
+            }
          }
-         this.minecraft.getTextureManager().bindTexture(texture);
-         blit(x+215+5,y+33+5,this.getBlitOffset()+100, 0,0,16, 16, 16, 16);
+
+         if(!MinecraftForge.EVENT_BUS.post(new VillagerServiceDrawEvent.DrawServiceIconInSlot(this, background, bgXOffset,bgYOffset))) {
+            this.minecraft.getTextureManager().bindTexture(texture);
+            blit(texXOffset,texYOffset,this.getBlitOffset()+100, 0,0,16, 16, 16, 16);
+         }
       }
    }
 
-   private void renderFrontServiceTextures(int x, int y, ResourceLocation texture){
-      this.minecraft.getTextureManager().bindTexture(texture);
-      blit(x, y,this.getBlitOffset()+50, 0, 0 , 16, 16, 16, 16);
-      this.minecraft.getTextureManager().bindTexture(MERCHANT_GUI_TEXTURE);
+   private void drawButtonServiceTextures(int x, int y, ResourceLocation texture) {
+      if(!MinecraftForge.EVENT_BUS.post(new VillagerServiceDrawEvent.DrawServiceIconInTradeButton(this, texture, x, y))){
+         this.minecraft.getTextureManager().bindTexture(texture);
+         blit(x, y,this.getBlitOffset()+50, 0, 0 , 16, 16, 16, 16);
+         this.minecraft.getTextureManager().bindTexture(MERCHANT_GUI_TEXTURE);
+      }
    }
 
-   //verify this is a correct name
    private void renderXpBar(int x, int y) {
       this.minecraft.getTextureManager().bindTexture(MERCHANT_GUI_TEXTURE);
       int i = this.container.getMerchantLevel();
@@ -351,7 +365,10 @@ public class ServiceMerchantScreen extends ContainerScreen<ServiceMerchantContai
                int id = this.GUITradeOffset + ServiceMerchantScreen.this.scrollOffset;
                MerchantOffer offer =  ServiceMerchantScreen.this.container.getOffers().get(id);
                if(offer instanceof ServiceMerchantOffer) {
-                  ServiceMerchantScreen.this.renderTooltip(((ServiceMerchantOffer) offer).getTooltip().stream().map(I18n::format).collect(Collectors.toList()), x, y);
+                  List<String> translatedTooltip = ((ServiceMerchantOffer)offer).getTooltip().stream().map(I18n::format).collect(Collectors.toList());
+                  if(!MinecraftForge.EVENT_BUS.post(new VillagerServiceDrawEvent.ToolTipEvent(ServiceMerchantScreen.this,this.x+65, this.y, x, y, translatedTooltip,false))) {
+                     ServiceMerchantScreen.this.renderTooltip(translatedTooltip, x, y);
+                  }
                } else {
                   ItemStack offerStack = offer.getSellingStack();
                   ServiceMerchantScreen.this.renderTooltip(offerStack, x, y);

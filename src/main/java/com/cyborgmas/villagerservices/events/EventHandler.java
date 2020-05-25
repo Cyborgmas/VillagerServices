@@ -15,10 +15,12 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
 
 @Mod.EventBusSubscriber(modid = VillagerServices.MOD_ID)
 public class EventHandler {
-
+   private static final Marker MARKER = MarkerManager.getMarker("Service serialization");
    /**
     * These fields are used to track data loss if {@link #deserializeServices} or {@link #serializeServices}
     * do not throw an exception.
@@ -77,7 +79,7 @@ public class EventHandler {
                                     whileRunningCount++;
                                  })));
          countedDeserialization = true;
-         VillagerServices.LOGGER.info("Successfully deserialized service offers");
+         VillagerServices.LOGGER.info(MARKER,"Successfully deserialized service offers");
       } catch (Throwable throwable) {
          CrashReport crashReport = CrashReport.makeCrashReport(throwable, "Could not deserialize service offers");
          event.getServer().addServerInfoToCrashReport(crashReport);
@@ -88,7 +90,7 @@ public class EventHandler {
    /**
     * The {@link MerchantOffers} do not serialize any {@link ServiceMerchantOffer} data.
     * It is instead stored in the merchant's {@link ServiceSerializerCap}
-    * This is done after before the server stops, so entities are still loaded.
+    * This is done before the server stops, so entities are still loaded.
     */
    @SubscribeEvent
    public static void serializeServices(FMLServerStoppingEvent event){
@@ -101,12 +103,12 @@ public class EventHandler {
                                     serializer.serializeServices(((IMerchant)merchant).getOffers());
                                     onStopCount++;
                                  })));
-         VillagerServices.LOGGER.info("Successfully serialized service offers");
+         VillagerServices.LOGGER.info(MARKER,"Successfully serialized service offers");
          if(onStopCount != whileRunningCount) {
             String cause = onStopCount > whileRunningCount ? " more " : " less ";
             int difference = onStopCount - whileRunningCount;
             difference = difference < 0 ? difference*-1 : difference;
-            VillagerServices.LOGGER.error("Problem encountered while serializing offers: there was "+ difference + cause +
+            VillagerServices.LOGGER.error(MARKER,"Problem encountered while serializing offers: there was "+ difference + cause +
                     "serialization/killing done then there was deserialization/new merchants." +
                     "This strongly suggests that data loss has occurred.");
          }
